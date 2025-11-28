@@ -1,0 +1,46 @@
+name: 🌦️ Pronóstico Robusto
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Cada 10 minutos (más confiable)
+  workflow_dispatch:
+
+jobs:
+  update-weather:
+    name: 📊 Actualizar pronóstico
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+    - name: 📥 Obtener código
+      uses: actions/checkout@v4
+      
+    - name: ⎔ Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 📦 Instalar dependencias
+      run: |
+        npm init -y --silent
+        npm install firebase-admin axios --save --silent
+        echo "✅ Dependencias instaladas"
+      
+    - name: 🔄 Reintentar en caso de error
+      continue-on-error: true
+      env:
+        FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+        FIREBASE_PRIVATE_KEY: "${{ secrets.FIREBASE_PRIVATE_KEY }}"
+        FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        FIREBASE_CLIENT_ID: ${{ secrets.FIREBASE_CLIENT_ID }}
+      run: |
+        echo "🕒 Iniciando ejecución - $(TZ='America/Argentina/Buenos_Aires' date)"
+        node scripts/actualizar-pronostico.js
+        echo "✅ Ejecución completada"
+        
+    - name: 📝 Registrar resultado
+      if: always()
+      run: |
+        echo "🏁 Resultado del workflow: ${{ job.status }}"
+        echo "Hora: $(TZ='America/Argentina/Buenos_Aires' date)"
