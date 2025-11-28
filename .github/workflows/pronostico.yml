@@ -3,7 +3,7 @@ name: 🌦️ Actualizar Pronóstico Automático
 on:
   schedule:
     # Ejecutar cada 30 minutos
-    - cron: '*/3 * * * *'
+    - cron: '*/2 * * * *'
   # Permite ejecución manual desde GitHub
   workflow_dispatch:
     inputs:
