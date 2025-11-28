@@ -2,11 +2,19 @@ name: 🌦️ Actualizar Pronóstico Automático
 
 on:
   schedule:
+    # Ejecutar cada 30 minutos
     - cron: '*/30 * * * *'
+  # Permite ejecución manual desde GitHub
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Razón de ejecución manual'
+        required: false
+        default: 'Ejecución manual'
 
 jobs:
   update-weather:
+    name: 📊 Actualizar pronóstico de lluvia
     runs-on: ubuntu-latest
     
     steps:
@@ -18,12 +26,13 @@ jobs:
       with:
         node-version: '18'
         
-    - name: 📦 Instalar Firebase-Admin y Axios
+    - name: 📦 Instalar dependencias
       run: |
-        npm init -y --silent
-        npm install firebase-admin axios --save --silent
+        echo "🔧 Instalando dependencias..."
+        npm install --no-package-lock --no-save firebase-admin axios
+        echo "✅ Dependencias instaladas"
       
-    - name: 🌦️ Ejecutar script
+    - name: 🌦️ Ejecutar actualización de pronóstico
       env:
         FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
@@ -31,3 +40,13 @@ jobs:
         FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
         FIREBASE_CLIENT_ID: ${{ secrets.FIREBASE_CLIENT_ID }}
       run: node scripts/actualizar-pronostico.js
+      
+    - name: ✅ Notificar éxito
+      if: success()
+      run: |
+        echo "✅ Pronóstico actualizado exitosamente - $(date)"
+        
+    - name: ❌ Notificar fallo
+      if: failure()
+      run: |
+        echo "❌ Falló la actualización del pronóstico - $(date)"
