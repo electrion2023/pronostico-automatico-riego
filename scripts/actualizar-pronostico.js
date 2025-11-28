@@ -80,7 +80,17 @@ async function actualizarPronostico() {
     };
   }
 }
-
+// Después de actualizar Firebase, agrega:
+const updateData = {
+  probabilidad_lluvia: maxProbabilidad,
+  ultima_actualizacion: Date.now(),
+  horas_pronostico: 2,
+  fuente: 'open-meteo',
+  ubicacion: '-33.306207,-66.334639',
+  ultima_ejecucion: new Date().toISOString(),
+  // ✅ NUEVO: Hora Argentina
+  hora_argentina: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+};
 // Ejecutar si es llamado directamente
 if (require.main === module) {
   actualizarPronostico()
