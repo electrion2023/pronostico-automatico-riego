@@ -9,55 +9,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: 📝 Registrar ejecución
+      - name: 📝 Verificar ejecución automática
         run: |
-          echo "🧪 EJECUCIÓN AUTOMÁTICA VERIFICADA" >> executions.log
-          echo "Hora GitHub (UTC): $(date -u)" >> executions.log
-          echo "Hora Argentina: $(TZ='America/Argentina/Buenos_Aires' date)" >> executions.log
-          echo "Timestamp: $(date +%s)" >> executions.log
-          echo "---" >> executions.log
-          cat executions.log
-          
-      - name: 📊 Enviar a Firebase
-        env:
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
-          FIREBASE_PRIVATE_KEY: "${{ secrets.FIREBASE_PRIVATE_KEY }}"
-          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-          FIREBASE_CLIENT_ID: ${{ secrets.FIREBASE_CLIENT_ID }}
-        run: |
-          node -e "
-          const admin = require('firebase-admin');
-          const serviceAccount = {
-            type: 'service_account',
-            project_id: process.env.FIREBASE_PROJECT_ID,
-            private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-            private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, '\\n'),
-            client_email: process.env.FIREBASE_CLIENT_EMAIL,
-            client_id: process.env.FIREBASE_CLIENT_ID,
-            auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-            token_uri: 'https://oauth2.googleapis.com/token'
-          };
-          
-          admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            databaseURL: 'https://electrion-e54b2.firebaseio.com'
-          });
-          
-          const now = new Date();
-          const horaArg = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-          
-          admin.database().ref('/test_schedule').push({
-            hora_github_utc: now.toISOString(),
-            hora_argentina: horaArg.toISOString(),
-            timestamp: Date.now(),
-            tipo: 'verificador_automatico',
-            ejecucion: 'schedule'
-          }).then(() => {
-            console.log('✅ Test enviado a Firebase');
-            process.exit(0);
-          }).catch(error => {
-            console.error('❌ Error:', error);
-            process.exit(1);
-          });
-          "
+          echo "✅ VERIFICADOR EJECUTADO - $(date)"
+          echo "Hora UTC: $(date -u)"
+          echo "Hora Argentina: $(TZ='America/Argentina/Buenos_Aires' date)"
+          echo "Timestamp: $(date +%s)"
