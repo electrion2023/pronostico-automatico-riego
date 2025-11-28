@@ -1,15 +1,13 @@
-name: 🌦️ Pronóstico Robusto
+name: 🌦️ Actualizar Pronóstico
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Cada 10 minutos (más confiable)
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
   update-weather:
-    name: 📊 Actualizar pronóstico
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     
     steps:
     - name: 📥 Obtener código
@@ -23,24 +21,28 @@ jobs:
     - name: 📦 Instalar dependencias
       run: |
         npm init -y --silent
-        npm install firebase-admin axios --save --silent
-        echo "✅ Dependencias instaladas"
+        npm install firebase-admin axios --save
       
-    - name: 🔄 Reintentar en caso de error
-      continue-on-error: true
+    - name: 🐛 Ejecutar con debug completo
       env:
         FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
         FIREBASE_PRIVATE_KEY: "${{ secrets.FIREBASE_PRIVATE_KEY }}"
         FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
         FIREBASE_CLIENT_ID: ${{ secrets.FIREBASE_CLIENT_ID }}
+        NODE_DEBUG: firebase-admin
       run: |
-        echo "🕒 Iniciando ejecución - $(TZ='America/Argentina/Buenos_Aires' date)"
-        node scripts/actualizar-pronostico.js
-        echo "✅ Ejecución completada"
+        echo "=== INICIANDO EJECUCIÓN ==="
+        node -e "
+        try {
+          console.log('🔧 Cargando script...');
+          require('./scripts/actualizar-pronostico.js');
+          console.log('✅ Script cargado correctamente');
+        } catch (error) {
+          console.error('❌ Error cargando script:', error);
+          process.exit(1);
+        }
+        " || exit 1
         
-    - name: 📝 Registrar resultado
-      if: always()
-      run: |
-        echo "🏁 Resultado del workflow: ${{ job.status }}"
-        echo "Hora: $(TZ='America/Argentina/Buenos_Aires' date)"
+        echo "=== EJECUTANDO SCRIPT COMPLETO ==="
+        node scripts/actualizar-pronostico.js
