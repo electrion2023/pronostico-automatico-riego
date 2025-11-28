@@ -1,0 +1,15 @@
+{
+  "name": "pronostico-automatico",
+  "version": "1.0.0",
+  "description": "Actualización automática de pronóstico para riego",
+  "scripts": {
+    "update-weather": "node scripts/actualizar-pronostico.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.0.0",
+    "axios": "^1.0.0"
+  },
+  "keywords": ["weather", "automation", "firebase"],
+  "author": "Tu Nombre",
+  "license": "MIT"
+}
