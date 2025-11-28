@@ -17,7 +17,7 @@ const serviceAccount = {
   token_uri: "https://oauth2.googleapis.com/token"
 };
 
-// Inicializar Firebase
+// Inicializar Firebase.
 try {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
